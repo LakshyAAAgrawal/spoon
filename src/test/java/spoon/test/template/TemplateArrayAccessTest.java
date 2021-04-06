@@ -25,7 +25,8 @@ import spoon.reflect.code.CtStatement;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.factory.Factory;
 import spoon.support.compiler.FileSystemFile;
-import spoon.test.template.testclasses.SubstituteArrayAccessTemplate;
+import spoon.template.Parameter;
+import spoon.template.StatementTemplate;
 import spoon.test.template.testclasses.SubstituteArrayLengthTemplate;
 
 public class TemplateArrayAccessTest {
@@ -34,13 +35,25 @@ public class TemplateArrayAccessTest {
 	public void testArrayAccess() {
 		//contract: the template engine supports variable access, typed as Array substitution
 		Launcher spoon = new Launcher();
-		spoon.addTemplateResource(new FileSystemFile("./src/test/java/spoon/test/template/testclasses/SubstituteArrayAccessTemplate.java"));
+		spoon.addTemplateResource(new FileSystemFile("./src/test/java/spoon/test/template/TemplateArrayAccessTest.java"));
 
 		spoon.buildModel();
 		Factory factory = spoon.getFactory();
 
 		CtClass<?> resultKlass = factory.Class().create("Result");
-		CtStatement result = new SubstituteArrayAccessTemplate(new String[]{"a",null,"b"}).apply(resultKlass);
+		CtStatement result = new StatementTemplate() {
+			@Parameter
+			String[] anArray = new String[]{"a",null,"b"};
+			
+			@Override
+			public void statement() throws Throwable {
+				anArray.toString();
+			}
+			
+			public String myNewMethod() {
+				return "IUHI";
+			}
+		}.apply(resultKlass);
 		assertEquals("new java.lang.String[]{ \"a\", null, \"b\" }.toString()", result.toString());
 	}
 
